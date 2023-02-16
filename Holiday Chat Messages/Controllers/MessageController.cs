@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Holiday_Chat_Messages.Models.Requests;
+using Holiday_Chat_Messages.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Holiday_Chat_Messages.Controllers
@@ -7,10 +9,23 @@ namespace Holiday_Chat_Messages.Controllers
     [ApiController]
     public class MessageController : ControllerBase
     {
-        [HttpPost("UserMessage")]
-        public IActionResult UserMessage()
+        private UserMessageService _userMessageService;
+
+        public MessageController(UserMessageService userMessageService)
         {
-            return Ok("User Message is OK");
+            _userMessageService = userMessageService;
+        }
+
+        [HttpPost("UserMessage")]
+        public IActionResult UserMessage([FromBody] UserMessageRequest request)
+        {
+            var processMessageSuccess = _userMessageService.ProcessMessage(request);
+            if (!processMessageSuccess)
+            {
+                return Ok("Unable to process message, please try again");
+            }
+
+            return Ok(_userMessageService.GetCurrentQuestion(request.Sender));
         }
     }
 }
