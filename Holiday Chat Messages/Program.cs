@@ -1,3 +1,4 @@
+using Holiday_Chat_Messages.Data;
 using Holiday_Chat_Messages.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,6 +16,8 @@ builder.Services.AddCors(p => p.AddPolicy("corsapp", builder =>
 {
     builder.WithOrigins("*").AllowAnyMethod().AllowAnyHeader();
 }));
+
+Destinatons.Load();
 
 var app = builder.Build();
 

@@ -39,6 +39,9 @@ namespace Holiday_Chat_Messages.Services
                 case QuestionSteps.MaxPrice:
                     isSuccess = userContext.ProcessMaxPriceSelection(message.Content);
                     break;
+                case QuestionSteps.Result:
+                   isSuccess = userContext.ProcessResultMessage(message.Content);
+                    break;
             }
 
             if (isSuccess)
@@ -66,7 +69,8 @@ namespace Holiday_Chat_Messages.Services
                  case QuestionSteps.MaxPrice:
                     return "What is the most you would like to spend on your booking? (Pounds Sterling)";
                 case QuestionSteps.Result:
-                    return $"The place you want to visit is {userContext.Category} for less than {userContext.MaxPrice}";
+                    return userContext.PossibleDestinations.Any() ? $"We have found an option for you! {userContext.PossibleDestinations.MaxBy(destination => destination.PricePerPerNight)}"
+                        : "Unable to find a destination within your criteria. To try again, please type 'try again'";
             }
 
             return "an error has occured";

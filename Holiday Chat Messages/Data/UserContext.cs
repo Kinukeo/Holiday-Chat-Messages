@@ -3,8 +3,8 @@
     public class UserContext
     {
         public string? UserName { get; set; }
-        public string? Category { get; private set; }
-        public double MaxPrice { get; private set; }
+
+        public List<Destination> PossibleDestinations = Destinatons.Data!;
 
         public QuestionSteps CurrentQuestionStep { get; private set; } = QuestionSteps.Category;
 
@@ -12,12 +12,12 @@
         {
             if (categoryResponseMessage.Contains("lazy", StringComparison.OrdinalIgnoreCase))
             {
-                Category = "lazy";
+                PossibleDestinations = PossibleDestinations.Where(destination => destination.Category == "lazy").ToList();
                 return true;
             }
             else if (categoryResponseMessage.Contains("active", StringComparison.OrdinalIgnoreCase))
             {
-                Category = "active";
+                PossibleDestinations = PossibleDestinations.Where(destination => destination.Category == "active").ToList();
                 return true;
             }
 
@@ -35,8 +35,19 @@
                 return false;
             }
 
-            MaxPrice = maxPrice;
+            PossibleDestinations = PossibleDestinations.Where(destination => destination.PricePerPerNight <= maxPrice).ToList();
             return true;
+        }
+
+        public bool ProcessResultMessage(string resultMessage)
+        {
+            if (resultMessage.Contains("try again", StringComparison.OrdinalIgnoreCase))
+            {
+                PossibleDestinations = Destinatons.Data!;
+                return true;
+            }
+
+            return false;
         }
 
         public void MoveToNextQuestionStep()
@@ -48,6 +59,9 @@
                     break;
                 case QuestionSteps.MaxPrice:
                     CurrentQuestionStep = QuestionSteps.Result;
+                    break;
+                case QuestionSteps.Result: // go back around
+                    CurrentQuestionStep = QuestionSteps.Category;
                     break;
             }
         }
